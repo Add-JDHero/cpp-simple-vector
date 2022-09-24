@@ -55,11 +55,8 @@ public:
     SimpleVector(std::initializer_list<Type> init) 
     :   size_(init.size()), capacity_(init.size())
     {
-        int i = 0;
         ArrayPtr<Type> tmp(size_);
-        for (const Type& element: init) {
-            tmp[i++] = element;
-        }
+        std::copy(init.begin(), init.end(), tmp.Get());
         vector_.swap(tmp);
     }
 
@@ -112,6 +109,7 @@ public:
     }
 
     Iterator Insert(ConstIterator pos, const Type& value) {
+        assert(pos >= begin() && pos <= end());
         auto insertable = pos - cbegin();
         if (capacity_ > size_) {
             Insert(insertable, value);
@@ -125,6 +123,7 @@ public:
     }
 
     Iterator Insert(ConstIterator pos, Type&& value) {
+        assert(pos >= begin() && pos <= end());
         auto insertable = pos - cbegin();
         if (capacity_ > size_) {
             Insert(insertable, std::move(value));
@@ -138,6 +137,7 @@ public:
     }
 
     Iterator Erase(ConstIterator pos) {
+        assert(pos >= begin() && pos < end());
         if (size_) {
             auto* it = begin() + (pos - cbegin());
             std::move((it + 1), end(), it);
@@ -171,11 +171,13 @@ public:
 
     // Возвращает ссылку на элемент с индексом index
     Type& operator[](size_t index) noexcept {
+        assert(index < size_);
         return vector_[index];
     }
 
     // Возвращает константную ссылку на элемент с индексом index
     const Type& operator[](size_t index) const noexcept {
+        assert(index < size_);
         return vector_[index];
     }
 
